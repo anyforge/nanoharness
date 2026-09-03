@@ -1,0 +1,30 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Package extension zip
+        run: |
+          mkdir -p dist
+          zip -r "dist/nanoharness-${GITHUB_REF_NAME#v}.zip" \
+            manifest.json background sidepanel options shared icons \
+            mcp-relay README.md README_zh.md LICENSE CHANGELOG.md CHANGELOG_zh.md \
+            -x '*node_modules*' '*.DS_Store'
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
+          generate_release_notes: true

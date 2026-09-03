@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>NanoHarness</title>
+<link rel="stylesheet" href="sidepanel.css">
+<link rel="stylesheet" href="monokai.min.css">
+</head>
+<body>
+  <div class="topbar">
+    <button id="btn-sidebar" class="icon-btn" data-i18n-title="panel.history" title="会话历史"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+    <span class="brand" data-i18n="brand">NanoHarness</span>
+    <div class="topbar-actions">
+      <button id="btn-new" class="icon-btn" data-i18n-title="panel.newSession" title="新建会话"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+      <button id="btn-record" class="icon-btn" data-i18n-title="panel.record" title="录制操作"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"></circle></svg></button>
+      <button id="btn-clear" class="icon-btn" data-i18n-title="panel.clearSession" title="清空当前会话"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+      <button id="btn-settings" class="icon-btn" data-i18n-title="panel.settings" title="设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="session-sidebar collapsed" id="session-sidebar">
+      <input id="session-search" class="search" data-i18n-ph="panel.searchPh" placeholder="搜索会话…">
+      <div id="session-list" class="session-list"></div>
+    </aside>
+
+    <main class="chat">
+      <div id="messages" class="messages"></div>
+      <div id="ask-bar" class="ask-bar hidden">
+        <div class="ask-card">
+          <div class="ask-label" data-i18n="panel.askLabel">需要你确认</div>
+          <div id="ask-pager" class="ask-pager hidden">
+            <button id="ask-prev" class="ask-nav" title="上一题">‹</button>
+            <span id="ask-page">1 / 1</span>
+            <button id="ask-next" class="ask-nav" title="下一题">›</button>
+          </div>
+          <div id="ask-question" class="ask-question"></div>
+          <div id="ask-options" class="ask-options hidden"></div>
+          <div class="ask-row">
+            <input id="ask-input" type="text" data-i18n-ph="panel.askInputPh" placeholder="输入你的回答…" />
+            <button class="btn-secondary" id="ask-cancel" data-i18n="panel.cancel">取消</button>
+            <button class="primary-btn" id="ask-send" data-i18n="panel.askSend">回复</button>
+          </div>
+        </div>
+      </div>
+      <div class="composer">
+        <div class="composer-box">
+          <div id="resize-handle" class="resize-handle" title="拖动调整输入框高度"></div>
+          <textarea id="input" rows="2" data-i18n-ph="panel.inputPh" placeholder="输入消息，回车发送，Shift+回车换行…"></textarea>
+          <button id="btn-send" class="send-btn" data-i18n-title="panel.send" title="发送"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <div id="record-intro-dialog" class="record-dialog hidden">
+    <div class="record-dialog-card">
+      <div class="record-dialog-title" data-i18n="panel.recordIntroTitle">录制操作</div>
+      <div class="record-dialog-hint" data-i18n="panel.recordIntroHint">录制会记录你接下来在网页上的点击、输入、滚动等操作，停止后自动归纳成一个可复用的「技能」。</div>
+      <div class="record-dialog-actions">
+        <button class="btn-secondary" id="record-intro-cancel" data-i18n="panel.cancel">取消</button>
+        <button class="primary-btn" id="record-intro-start" data-i18n="panel.recordStartBtn">开始录制</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="record-alert-dialog" class="record-dialog hidden">
+    <div class="record-dialog-card">
+      <div class="record-dialog-title" id="record-alert-title" data-i18n="panel.recordAlertTitle">录制提示</div>
+      <div class="record-dialog-hint" id="record-alert-body"></div>
+      <div class="record-dialog-actions">
+        <button class="primary-btn" id="record-alert-ok" data-i18n="panel.recordOk">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="record-dialog" class="record-dialog hidden">
+    <div class="record-dialog-card">
+      <div class="record-dialog-title" data-i18n="panel.recordSave">保存为技能</div>
+      <input id="record-name-input" type="text" data-i18n-ph="panel.recordNamePh" placeholder="技能名称，例如：财务上报" />
+      <div class="record-dialog-hint" data-i18n="panel.recordHint">已录制的操作会归纳成技能步骤，下次在对话里说「我要财务上报」即可自动执行。</div>
+      <div class="record-dialog-status" id="record-dialog-status"></div>
+      <div class="record-progress hidden" id="record-progress"><div class="record-progress-bar"></div></div>
+      <div class="record-dialog-actions">
+        <button class="btn-secondary" id="record-cancel" data-i18n="panel.cancel">取消</button>
+        <button class="primary-btn" id="record-ok" data-i18n="panel.recordSaveBtn">保存技能</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-alert-dialog" class="record-dialog hidden">
+    <div class="record-dialog-card">
+      <div class="record-dialog-title" id="app-alert-title">提示</div>
+      <div class="record-dialog-hint" id="app-alert-body"></div>
+      <div class="record-dialog-actions">
+        <button class="primary-btn" id="app-alert-ok" data-i18n="panel.recordOk">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="highlight.min.js"></script>
+  <script src="mermaid.min.js"></script>
+  <script src="marked.min.js"></script>
+  <script src="../shared/i18n.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "nanoharness-mcp-relay",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Bridge between an external MCP client (stdio) and the NanoHarness browser extension (WebSocket).",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "ws": "^8.21.3"
+  }
+}

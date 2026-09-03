@@ -1,0 +1,269 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>NanoHarness</title>
+<link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="titlebar">
+    <img class="logo" src="../icons/icon48.png" alt="NanoHarness">
+    <div class="title" data-i18n="opts.title">NanoHarness 设置</div>
+    <div class="titlebar-right">
+      <span class="status" id="status"></span>
+    </div>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="general" data-i18n="opts.tabGeneral">常规</button>
+    <button class="tab" data-tab="llm" data-i18n="opts.tabLlm">大模型</button>
+    <button class="tab" data-tab="agent" data-i18n="opts.tabAgent">智能体</button>
+    <button class="tab" data-tab="skills" data-i18n="opts.tabSkills">技能</button>
+    <button class="tab" data-tab="mcp" data-i18n="opts.tabMcp">MCP</button>
+    <button class="tab" data-tab="expose" data-i18n="opts.tabExpose">MCP 暴露</button>
+  </nav>
+
+  <div class="container">
+    <!-- 常规 -->
+    <section class="panel active" id="panel-general">
+      <div class="section">
+        <div class="section-title" data-i18n="opts.tabGeneral">常规</div>
+        <label class="field"><span data-i18n="opts.lang">语言</span>
+          <div class="segmented">
+            <button data-lang-toggle="en" class="active">English</button>
+            <button data-lang-toggle="zh">中文</button>
+          </div>
+        </label>
+        <label class="field" style="margin-top:14px"><span data-i18n="opts.theme">主题</span>
+          <div class="segmented" id="theme-seg">
+            <button data-theme-btn="light" class="active" data-i18n="opts.themeLight">明亮</button>
+            <button data-theme-btn="dark" data-i18n="opts.themeDark">暗色</button>
+          </div>
+        </label>
+      </div>
+      <div class="section" id="token-dashboard">
+        <div class="section-title" data-i18n="opts.tokenTitle">Token 用量</div>
+        <p class="desc" data-i18n="opts.tokenDesc">所有模型的历史 token 用量（输入 / 输出）。</p>
+        <div id="token-charts"></div>
+        <div class="token-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <span data-i18n="opts.tokenNote">token 用量按每次模型调用累计：优先采用服务商返回的 usage 字段（精确）；若服务商不返回 usage，则按「中文≈1 token/字、其他≈4 字符/token」估算。</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 大模型 -->
+    <section class="panel" id="panel-llm">
+      <div class="section">
+        <div class="section-title" data-i18n="opts.llmTitle">大模型</div>
+        <p class="desc" data-i18n="opts.llmDesc">配置大模型 API。支持 OpenAI 兼容与 Anthropic 两种协议。</p>
+
+        <label class="field"><span data-i18n="opts.protocol">协议</span>
+          <div class="segmented" id="protocol-seg">
+            <button data-protocol="openai" class="active" data-i18n="opts.protocolOpenAI">OpenAI 兼容</button>
+            <button data-protocol="anthropic" data-i18n="opts.protocolAnthropic">Anthropic</button>
+          </div>
+        </label>
+        <p class="desc" data-i18n="opts.protocolDesc">OpenAI 兼容适用于 DeepSeek / OpenAI / Moonshot 等；Anthropic 适用于 Claude。</p>
+
+        <div class="preset-label" data-i18n="opts.preset">常用配置</div>
+        <p class="desc" data-i18n="opts.presetClick">点击预设自动填入协议、Base URL 与模型，API Key 请自行填写。</p>
+        <div class="presets" id="llm-presets"></div>
+
+        <label class="field"><span data-i18n="opts.baseURL">Base URL</span><input id="llm-baseurl" data-i18n-ph="opts.baseURLPh" placeholder="https://api.deepseek.com/v1" spellcheck="false"></label>
+        <label class="field"><span data-i18n="opts.apiKey">API Key</span>
+          <div class="key-field">
+            <input id="llm-apikey" type="password" spellcheck="false">
+            <button id="toggle-apikey" class="eye-btn" type="button" data-i18n-title="opts.showKey" title="显示">
+              <svg class="ico-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <svg class="ico-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            </button>
+          </div>
+        </label>
+        <label class="field model-row">
+          <span data-i18n="opts.model">模型</span>
+          <div class="model-picker">
+            <input id="llm-model" data-i18n-ph="opts.modelPh" placeholder="deepseek-chat" spellcheck="false">
+            <div id="model-list" class="model-list hidden"></div>
+          </div>
+          <button id="detect-models" class="mini-btn" type="button" data-i18n="opts.detectModels">自动检测</button>
+        </label>
+
+        <label class="field"><span data-i18n="opts.displayName">模型显示名称</span><input id="llm-displayname" data-i18n-ph="opts.displayNamePh" placeholder="deepseek-chat" spellcheck="false"></label>
+        <p class="desc" data-i18n="opts.displayNameDesc">展示用的名称，默认与模型 ID 同名；同名模型来自不同 Base URL 时用它区分。</p>
+
+        <label class="field" style="margin-top:4px"><span data-i18n="opts.temperature">温度值</span><input id="llm-temperature" type="number" min="0" max="2" step="0.1" style="width:110px"></label>
+        <p class="desc" data-i18n="opts.temperatureDesc">0–2，越高越随机。OpenAI 兼容默认 0.7，Anthropic 上限 1。</p>
+
+        <label class="field"><span data-i18n="opts.timeout">超时（秒）</span><input id="llm-timeout" type="number" min="5" max="600" step="1" style="width:110px"></label>
+        <p class="desc" data-i18n="opts.timeoutDesc">单次请求超时，默认 60 秒。</p>
+
+        <p class="desc" style="margin-top:14px" data-i18n="opts.selfHost">自建 / 第三方 provider：协议选对后，直接改上方 Base URL 与模型即可。</p>
+
+        <div class="test-row">
+          <button id="test-conn" class="btn" type="button" data-i18n="opts.testConn">测试连接</button>
+          <span id="test-result" class="test-result"></span>
+        </div>
+        <div class="panel-actions">
+          <button class="btn" id="cancel-llm" data-i18n="opts.cancel">取消</button>
+          <button class="btn primary" id="save-llm" data-i18n="opts.save">保存</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 智能体 -->
+    <section class="panel" id="panel-agent">
+      <div class="section">
+        <div class="section-title" data-i18n="opts.agentTitle">智能体</div>
+        <p class="desc" data-i18n="opts.agentDesc">人设与迭代次数。人设留空则使用内置默认。</p>
+
+        <div class="preset-label" data-i18n="opts.agentPreset">常用智能体配置</div>
+        <div class="presets" id="agent-presets"></div>
+
+        <label class="field field-col">
+          <span data-i18n="opts.personaTitle">人设（system prompt）</span>
+          <p class="desc" data-i18n="opts.personaDesc">定义智能体的身份与语气，会作为 system prompt 注入。</p>
+          <textarea id="persona" rows="9" data-i18n-ph="opts.personaPh" placeholder="留空使用内置默认" spellcheck="false"></textarea>
+        </label>
+        <label class="field" style="margin-top:14px"><span data-i18n="opts.maxIter">最大迭代次数</span><input id="max-iter" type="number" min="1" max="100" style="width:110px"></label>
+        <p class="desc" data-i18n="opts.maxIterDesc">单轮对话中 agent 最多执行的「思考+工具调用」轮数，默认 90。</p>
+
+        <div class="section-title" style="margin-top:22px" data-i18n="opts.compressionTitle">上下文压缩</div>
+        <p class="desc" data-i18n="opts.compressionDesc">长对话自动摘要，防止上下文超限。默认参照 Hermes（阈值 0.5、目标 0.2）。</p>
+
+        <label class="field" style="margin-top:12px"><span data-i18n="opts.compEnabled">自动压缩</span>
+          <div class="segmented" id="comp-enabled-seg">
+            <button data-comp-enabled="1" class="active" data-i18n="opts.on">开</button>
+            <button data-comp-enabled="0" data-i18n="opts.off">关</button>
+          </div>
+        </label>
+        <p class="desc" data-i18n="opts.compEnabledDesc">对话占用超过阈值时自动压缩历史，长任务不丢上下文。</p>
+
+        <label class="field" style="margin-top:12px"><span data-i18n="opts.contextLength">上下文窗口（token）</span><input id="comp-context" type="number" min="4000" max="2000000" step="1000" style="width:140px"></label>
+        <p class="desc" data-i18n="opts.contextLengthDesc">模型的上下文长度，用于计算触发阈值。默认 128000。</p>
+
+        <label class="field" style="margin-top:12px"><span data-i18n="opts.compThreshold">压缩阈值</span><input id="comp-threshold" type="number" min="0.1" max="0.9" step="0.05" style="width:110px"></label>
+        <p class="desc" data-i18n="opts.compThresholdDesc">占用超过此比例即触发压缩。默认 0.5，越小压缩越频繁。</p>
+
+        <label class="field" style="margin-top:12px"><span data-i18n="opts.compTarget">压缩目标比例</span><input id="comp-target" type="number" min="0.05" max="0.8" step="0.05" style="width:110px"></label>
+        <p class="desc" data-i18n="opts.compTargetDesc">压缩后的目标占用比例。默认 0.2。</p>
+
+        <label class="field" style="margin-top:12px"><span data-i18n="opts.summarizeTimeout">录制归纳超时（秒）</span><input id="summarize-timeout" type="number" min="60" max="3600" style="width:110px"></label>
+        <p class="desc" data-i18n="opts.summarizeTimeoutDesc">录制操作归纳成技能时的单次请求超时，默认 300 秒（5 分钟）。</p>
+
+        <div class="panel-actions">
+          <button class="btn" id="cancel-agent" data-i18n="opts.cancel">取消</button>
+          <button class="btn primary" id="save-agent" data-i18n="opts.save">保存</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 技能 -->
+    <section class="panel" id="panel-skills">
+      <div class="section">
+        <div class="section-title" data-i18n="opts.skillsTitle">技能</div>
+        <p class="desc" data-i18n="opts.skillsDesc">增删改查技能；技能正文会被 agent 通过 skill 工具按需加载。</p>
+        <div id="skills-list" class="mini-list"></div>
+        <div class="list-actions">
+          <button class="btn" id="add-skill" data-i18n="opts.addSkill">＋ 新增技能</button>
+          <button class="btn" id="upload-skill-folder" data-i18n="opts.uploadSkillFolder">上传文件夹</button>
+          <input type="file" id="skill-folder-input" webkitdirectory multiple style="display:none">
+        </div>
+        <div class="panel-actions">
+          <button class="btn" id="cancel-skills" data-i18n="opts.cancel">取消</button>
+          <button class="btn primary" id="save-skills" data-i18n="opts.save">保存</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MCP -->
+    <section class="panel" id="panel-mcp">
+      <div class="section">
+        <div class="section-title" data-i18n="opts.mcpTitle">MCP 服务器</div>
+        <p class="desc" data-i18n="opts.mcpDesc">连接远程 MCP server（HTTP/SSE transport；纯扩展无法使用本地 stdio）。</p>
+        <div id="mcp-list" class="mini-list"></div>
+        <div class="list-actions">
+          <button class="btn" id="add-mcp" data-i18n="opts.addMcp">＋ 新增 MCP</button>
+          <button class="btn" id="import-mcp-json" data-i18n="opts.importMcpJson">导入 JSON</button>
+        </div>
+        <div class="panel-actions">
+          <button class="btn" id="cancel-mcp" data-i18n="opts.cancel">取消</button>
+          <button class="btn primary" id="save-mcp" data-i18n="opts.save">保存</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MCP 暴露（把 NanoHarness 自身暴露为 MCP server） -->
+    <section class="panel" id="panel-expose">
+      <div class="section">
+        <div class="section-title" data-i18n="opts.exposeTitle">MCP 暴露</div>
+        <p class="desc" data-i18n="opts.exposeDesc">把 NanoHarness 自身作为 MCP server 暴露给其他智能体（Claude / Cursor / 其他 agent）调用。纯扩展无法监听端口，需配合一个 relay 进程（见项目 mcp-relay/）。</p>
+        <label class="field"><span data-i18n="opts.exposeEnabled">启用</span>
+          <div class="segmented" id="expose-enabled">
+            <button data-expose="1" data-i18n="opts.on">开</button>
+            <button data-expose="0" class="active" data-i18n="opts.off">关</button>
+          </div>
+          <span id="expose-status" class="expose-status"></span>
+        </label>
+
+        <label class="field"><span data-i18n="opts.exposePort">端口</span>
+          <div class="port-field">
+            <input id="expose-port" type="number" min="1" max="65535" value="8787" spellcheck="false">
+            <button id="check-port" class="mini-btn" type="button" data-i18n="opts.checkPort">检测占用</button>
+          </div>
+        </label>
+        <p class="desc port-status" id="port-status"></p>
+
+        <label class="field"><span data-i18n="opts.exposeToken">Token</span>
+          <div class="key-field">
+            <input id="expose-token" type="password" spellcheck="false">
+            <button id="toggle-expose-token" class="eye-btn" type="button" data-i18n-title="opts.showKey" title="显示">
+              <svg class="ico-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <svg class="ico-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 1 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            </button>
+          </div>
+        </label>
+        <p class="desc" data-i18n="opts.exposeTokenDesc">可选。设置后，连接需携带此 token 鉴权。</p>
+
+        <div class="expose-addr">
+          <div class="expose-addr-head">
+            <div class="expose-addr-title" data-i18n="opts.exposeAddrTitle">连接地址</div>
+            <button id="copy-expose" class="mini-btn" type="button" data-i18n="opts.exposeCopy">复制</button>
+          </div>
+          <pre id="expose-addr-text" class="expose-addr-text"></pre>
+          <p class="desc" data-i18n="opts.exposeAddrHint">复制后粘贴到 Claude Desktop / Cursor 的 mcpServers 配置里。远程连接时，把 localhost 换成运行 relay 那台机器的 IP 或域名。</p>
+        </div>
+
+        <div class="expose-tip">
+          <div class="expose-tip-title" data-i18n="opts.exposeTipTitle">使用须知</div>
+          <ul class="expose-tip-list">
+            <li data-i18n="opts.exposeTip1">第 1 步 · 先运行 relay：在项目 mcp-relay 目录下 node relay.mjs --port 8787（端口与上方「端口」一致）。</li>
+            <li data-i18n="opts.exposeTip2">第 2 步 · 再打开上方「启用」开关，等待状态变为「已连接」。</li>
+            <li data-i18n="opts.exposeTip3">第 3 步 · 复制下方连接配置，填到 Claude Desktop / Cursor 的 mcpServers 里即可被调用。</li>
+            <li data-i18n="opts.exposeTip4">Chrome 保持开启、扩展启用即可，侧边栏无需打开。</li>
+            <li data-i18n="opts.exposeTip5">浏览器关闭后自动断开，下次需重新打开开关。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 通用弹窗（编辑技能/MCP、查看技能、导入 JSON） -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="modal-title" id="modal-title"></div>
+        <button class="modal-close" id="modal-close" type="button">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-actions" id="modal-actions">
+        <button class="btn" id="modal-cancel" type="button" data-i18n="opts.cancel">取消</button>
+        <button class="btn primary" id="modal-ok" type="button" data-i18n="opts.save">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../shared/i18n.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
