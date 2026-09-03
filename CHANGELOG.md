@@ -4,6 +4,16 @@ All notable changes are documented here (format follows [Keep a Changelog](https
 
 > [中文 / Chinese](CHANGELOG_zh.md)
 
+## [1.1.0] - 2026-09-04
+
+### ⏺️ Action recording
+
+- **Navigation capture**: address-bar URLs, link clicks, and back/forward are now recorded as `navigate` steps, so recorded skills correctly include the "open this URL" action instead of missing the first navigation.
+
+### Fixed
+
+- Recorded skills previously lost the initial navigation step (e.g. typing a URL in the address bar), so replayed skills couldn't know which site to open first.
+
 ## [1.0.0] - 2026-09-03
 
 First stable release.

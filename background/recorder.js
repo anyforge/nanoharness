@@ -161,8 +161,22 @@ export function isRecording() { return recording; }
 
 function injectable(tab) {
   if (!tab || tab.id == null) return false;
-  const u = String(tab.url || '');
-  return !(u.startsWith('chrome://') || u.startsWith('chrome-extension://') || u.startsWith('edge://') || u.startsWith('about:') || u.startsWith('devtools://'));
+  return isNavigableUrl(tab.url);
+}
+
+function isNavigableUrl(u) {
+  const s = String(u || '');
+  return !(s.startsWith('chrome://') || s.startsWith('chrome-extension://') || s.startsWith('edge://') || s.startsWith('about:') || s.startsWith('devtools://'));
+}
+
+// 导航捕获：地址栏输入 / 点链接 / 前进后退等主 frame 跳转，记为 navigate 步骤
+function onCommitted(details) {
+  if (!details || details.frameId !== 0) return; // 只要主 frame，忽略 iframe
+  const url = String(details.url || '');
+  if (!isNavigableUrl(url)) return;
+  const last = recordedSteps[recordedSteps.length - 1];
+  if (last && last.action === 'navigate' && last.url === url) return; // 连续同 URL commit 去重
+  recordedSteps.push({ action: 'navigate', url, ts: Date.now(), transition: details.transitionType || '' });
 }
 
 async function injectTab(tabId) {
@@ -210,6 +224,7 @@ export async function startRecording() {
   // 跟随后续激活/加载的标签页
   chrome.tabs.onActivated.addListener(onActivated);
   chrome.tabs.onUpdated.addListener(onUpdated);
+  chrome.webNavigation.onCommitted.addListener(onCommitted);
   recordTimer = setInterval(pullSteps, 400);
   return { ok: true };
 }
@@ -221,6 +236,7 @@ export async function stopRecording() {
   if (recordTimer) { clearInterval(recordTimer); recordTimer = null; }
   chrome.tabs.onActivated.removeListener(onActivated);
   chrome.tabs.onUpdated.removeListener(onUpdated);
+  chrome.webNavigation.onCommitted.removeListener(onCommitted);
   await pullSteps();
   recording = false;
   const steps = recordedSteps.slice().sort((a, b) => (a.ts || 0) - (b.ts || 0));
@@ -254,9 +270,9 @@ async function summarizeSteps(steps, name, onProgress) {
 1. 忠实保留完整操作路径（不跨页合并、不把「搜索→进官网」提取成目标 URL 捷径）
 2. 只去真噪音（重复聚焦/滚动/同元素重复点击）
 3. 识别动态变量，用中文方括号占位，如【姓名】【金额】【日期】
-4. 每个操作含 action（click/type/select/submit/scroll/hover）与 loc（{selector,text}，selector 优先、text 兜底）；hover 是辅助动作，仅当它真正打开了菜单/下拉才保留，否则删掉
+4. 每个操作含 action（click/type/select/submit/scroll/hover/navigate）与 loc（{selector,text}，selector 优先、text 兜底）；navigate 表示页面跳转、含目标 url（即「打开该网址」），务必保留在技能里；hover 是辅助动作，仅当它真正打开了菜单/下拉才保留，否则删掉
 5. 只输出一个 JSON 对象（不要任何解释、不要 markdown 代码块）：
-{"name":"${name}","description":"一句话中文描述","content":"技能正文，每一步写清：用 browser_click 点击选择器 xxx 或文字「xxx」；用 browser_type 在选择器 xxx 输入 xxx"}
+{"name":"${name}","description":"一句话中文描述","content":"技能正文，每一步写清：用 browser_navigate 打开网址 xxx；用 browser_click 点击选择器 xxx 或文字「xxx」；用 browser_type 在选择器 xxx 输入 xxx"}
 
 操作步骤：
 ${JSON.stringify(steps, null, 2)}`;
